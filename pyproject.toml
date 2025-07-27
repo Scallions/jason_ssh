@@ -8,12 +8,15 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "gradio>=5.38.2",
     "matplotlib>=3.10.3",
     "netcdf4>=1.7.2",
     "numpy>=2.3.2",
     "pandas>=2.3.1",
     "pygmt[all]>=0.16.0",
+    "pyinstaller>=6.14.2",
     "pykrige>=1.7.2",
+    "pywebview>=5.4",
     "scipy>=1.16.0",
 ]
 
