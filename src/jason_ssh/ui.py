@@ -8,7 +8,7 @@ import webview
 
 from jason_ssh.data import JasonData, filter_region, group_mean_by_track, load_data, read_dir_data
 from jason_ssh.grid import kriging_interpolation
-from jason_ssh.plot import plot_grid, plot_time_series, plot_ts_trend
+from jason_ssh.plot import plot_grid, plot_map, plot_time_series, plot_ts_trend
 from jason_ssh.trend import trend_all
 
 def greet(name):
@@ -35,15 +35,18 @@ def select_dir():
         return None
 
 
-def interpolate():
+def interpolate(region):
     global jason_data
     if jason_data is None:
         return "No data loaded"
-    data = filter_region(jason_data, china_lon_range, china_lat_range)
+    if region == "china":
+        data = filter_region(jason_data, china_lon_range, china_lat_range)
+    else:
+        data = filter_region(jason_data, east_lon_range, east_lat_range)
     z_kriged, grid_lon, grid_lat = kriging_interpolation(data.lon, data.lat, data.ssha)
-    plot_grid(z_kriged, grid_lon, grid_lat, pic_name=f"jason3_ssha_kriging_east.png")
+    plot_grid(z_kriged, grid_lon, grid_lat, pic_name=f"jason3_ssha_kriging_{region}.png")
     # 返回 gradio image
-    image_path = f"figs/jason3_ssha_kriging_east.png"
+    image_path = f"figs/jason3_ssha_kriging_{region}.png"
     return gr.Image(image_path, label="Kriged SSH Anomaly Map")
 
 def trend():
@@ -57,16 +60,42 @@ def trend():
     return gr.Image("figs/jason3_east_track_timeseries_trend.png", label="Trend Image")
 
 
+def track(region):
+    global jason_data
+    if jason_data is None:
+        return "No data loaded"
+
+    if region == "china":
+        data = filter_region(jason_data, china_lon_range, china_lat_range)
+    else:
+        data = filter_region(jason_data, east_lon_range, east_lat_range)
+    plot_map(data.lon, data.lat, data.ssha, data.time, fig_name="jason3_china_track_downsample_10x.png")
+    return gr.Image("figs/jason3_china_track_downsample_10x.png", label="Track Image")
+
 def gui():
     with gr.Blocks() as demo:
         with gr.Tab(label="Data"):
             btn = gr.Button("Load Data")
             dir_output = gr.Textbox(label="Selected Directory")
             btn.click(select_dir, outputs=dir_output)
+        with gr.Tab(label="轨迹"):
+            track_img = gr.Image(label="Track Image")
+            region = gr.Dropdown(
+                choices=["china", "east"],
+                value="china",
+                label="Region"
+            )
+            btn1 = gr.Button("绘制轨迹")
+            btn1.click(track, inputs=[region], outputs=track_img)
         with gr.Tab(label="插值"):
             grid_img = gr.Image(label="Grid Image")
+            region = gr.Dropdown(
+                choices=["china", "east"],
+                value="china",
+                label="Region"
+            )
             btn2 = gr.Button("插值")
-            btn2.click(interpolate, outputs=grid_img)
+            btn2.click(interpolate, inputs=[region], outputs=grid_img)
         with gr.Tab(label="趋势"):
             trend_img = gr.Image(label="Trend Image")
             btn3 = gr.Button("趋势")
