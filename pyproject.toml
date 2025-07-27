@@ -1,0 +1,25 @@
+[project]
+name = "jason-ssh"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Scallions", email = "844120806@qq.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.10.3",
+    "netcdf4>=1.7.2",
+    "numpy>=2.3.2",
+    "pandas>=2.3.1",
+    "pygmt[all]>=0.16.0",
+    "pykrige>=1.7.2",
+    "scipy>=1.16.0",
+]
+
+[project.scripts]
+jason-ssh = "jason_ssh:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
